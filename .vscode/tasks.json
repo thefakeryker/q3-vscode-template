@@ -1,0 +1,52 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CMake Configure",
+            "type": "shell",
+            "command": "cmake -DQVM_TOOLS_PATH='${config:qvm_tools_path}' -S . -B ${config:build_dir}",
+            "group": "build"
+        },
+        {
+            "label": "CMake Build",
+            "type": "shell",
+            "command": "cmake --build ${config:build_dir}",
+            "group": "build"
+        },
+        {
+            "label": "Package Binaries",
+            "type": "shell",
+            "command": "zip -r ./${config:basegame}.pk3 ./*",
+            "group": "build",
+            "options": {
+              "cwd": "${workspaceFolder}/${config:build_dir}/Release/${config:basegame}/"
+            }
+        },
+        {
+            "label": "Copy Binaries",
+            "type": "shell",
+            "command": "mkdir -p '${config:engine_path}/${config:basegame}'; cp ./${config:basegame}.pk3 '${config:engine_path}/${config:basegame}/'",
+            "group": "build",
+            "options": {
+              "cwd": "${workspaceFolder}/${config:build_dir}/Release/${config:basegame}/"
+            }
+        },
+        {
+            "label": "Launch Mod",
+            "type": "shell",
+            "command": "'${config:engine_path}/${config:engine_name}' +set fs_game ${config:basegame}",
+            "group": "build"
+        },
+        {
+            "label": "Build and Run",
+            "dependsOn": ["CMake Configure", "CMake Build", "Package Binaries", "Copy Binaries", "Launch Mod"],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+    ]
+}
